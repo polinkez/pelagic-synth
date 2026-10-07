@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pelagic / underwater synth</title>
+<link rel="stylesheet" href="style.css">
+<script defer src="script.js"></script>
+</head>
+<body>
+
+<div class="plugin">
+
+  <header class="header">
+    <div class="brand">
+      <div class="arrow">→</div>
+      <div>
+        <div class="brand-name">pelagic<br>instrument</div>
+        <div class="brand-sub">underwater synthesis model</div>
+      </div>
+    </div>
+
+    <div class="io">
+      <div class="io-item status" id="audioStatus">
+        <div class="status-dot"></div>
+        <span id="audioStatusText">audio idle</span>
+      </div>
+
+      <button class="io-button" id="playButton">play</button>
+      <button class="io-button" id="stopButton">stop</button>
+
+      <div class="io-item">→ stereo out</div>
+    </div>
+  </header>
+
+
+  <section class="synth light">
+    <div class="section-title">Surface Synth</div>
+
+    <div class="controls">
+      <div class="control">
+        <div class="label">Volume</div>
+        <div class="slider">
+          <input id="surfaceVolume" type="range" min="0" max="100" value="72">
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="label">Detune</div>
+        <div class="knob-control">
+          <div class="knob k1"><span class="knob-line"></span></div>
+          <input class="knob-input" id="surfaceDetune" type="range" min="-40" max="40" value="-7">
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="label">Pan</div>
+        <div class="knob-control">
+          <div class="knob k2"><span class="knob-line"></span></div>
+          <input class="knob-input" id="surfacePan" type="range" min="-100" max="100" value="-35">
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="label">Current</div>
+        <div class="slider">
+          <input id="surfaceCurrent" type="range" min="0" max="100" value="42">
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="label">Frequency</div>
+        <div class="knob-control">
+          <div class="knob k3"><span class="knob-line"></span></div>
+          <input class="knob-input" id="surfaceFrequency" type="range" min="-12" max="12" value="0">
+        </div>
+      </div>
+
+      <div class="wave-control">
+        <div class="label">Type</div>
+        <div class="wave-row" data-voice="surface">
+          <button class="wave active" data-wave="sine">Sine</button>
+          <button class="wave" data-wave="square">Square</button>
+          <button class="wave" data-wave="triangle">Triangle</button>
+          <button class="wave" data-wave="sawtooth">Sawtooth</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="synth dark">
+    <div class="section-title">Deep Synth</div>
+
+    <div class="controls">
+      <div class="control">
+        <div class="label">Volume</div>
+        <div class="slider">
+          <input id="deepVolume" type="range" min="0" max="100" value="68">
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="label">Detune</div>
+        <div class="knob-control">
+          <div class="knob k4"><span class="knob-line"></span></div>
+          <input class="knob-input" id="deepDetune" type="range" min="-40" max="40" value="5">
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="label">Pan</div>
+        <div class="knob-control">
+          <div class="knob k2"><span class="knob-line"></span></div>
+          <input class="knob-input" id="deepPan" type="range" min="-100" max="100" value="35">
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="label">Depth</div>
+        <div class="slider">
+          <input id="deepDepth" type="range" min="0" max="100" value="78">
+        </div>
+      </div>
+
+      <div class="control">
+        <div class="label">Frequency</div>
+        <div class="knob-control">
+          <div class="knob k1"><span class="knob-line"></span></div>
+          <input class="knob-input" id="deepFrequency" type="range" min="-12" max="12" value="-12">
+        </div>
+      </div>
+
+      <div class="wave-control">
+        <div class="label">Type</div>
+        <div class="wave-row" data-voice="deep">
+          <button class="wave" data-wave="sine">Sine</button>
+          <button class="wave active" data-wave="square">Square</button>
+          <button class="wave" data-wave="triangle">Triangle</button>
+          <button class="wave" data-wave="sawtooth">Sawtooth</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <section class="bottom">
+
+    <div class="drums">
+      <div class="small-title">percussion</div>
+
+      <div class="drum-controls">
+        <div class="drum">
+          <div class="knob-control small-knob">
+            <div class="knob k1"><span class="knob-line"></span></div>
+            <input class="knob-input" id="kickLevel" type="range" min="0" max="100" value="80">
+          </div>
+          <div class="drum-name">kick</div>
+        </div>
+
+        <div class="drum">
+          <div class="knob-control small-knob">
+            <div class="knob k2"><span class="knob-line"></span></div>
+            <input class="knob-input" id="snareLevel" type="range" min="0" max="100" value="46">
+          </div>
+          <div class="drum-name">snare</div>
+        </div>
+
+        <div class="drum">
+          <div class="knob-control small-knob">
+            <div class="knob k3"><span class="knob-line"></span></div>
+            <input class="knob-input" id="hatLevel" type="range" min="0" max="100" value="28">
+          </div>
+          <div class="drum-name">hat</div>
+        </div>
+
+        <div class="drum">
+          <div class="knob-control small-knob">
+            <div class="knob k4"><span class="knob-line"></span></div>
+            <input class="knob-input" id="textureLevel" type="range" min="0" max="100" value="18">
+          </div>
+          <div class="drum-name">texture</div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="effects">
+      <div class="small-title">effects</div>
+
+      <div class="fx-grid">
+        <div class="fx">
+          <div class="knob-control fx-knob">
+            <div class="knob k1"><span class="knob-line"></span></div>
+            <input class="knob-input" id="chorusAmount" type="range" min="0" max="100" value="36">
+          </div>
+          <div class="fx-name">chorus</div>
+        </div>
+
+        <div class="fx">
+          <div class="knob-control fx-knob">
+            <div class="knob k3"><span class="knob-line"></span></div>
+            <input class="knob-input" id="delayAmount" type="range" min="0" max="100" value="28">
+          </div>
+          <div class="fx-name">delay</div>
+        </div>
+
+        <div class="fx">
+          <div class="knob-control fx-knob">
+            <div class="knob k2"><span class="knob-line"></span></div>
+            <input class="knob-input" id="reverbAmount" type="range" min="0" max="100" value="56">
+          </div>
+          <div class="fx-name">reverb</div>
+        </div>
+
+        <div class="fx">
+          <div class="knob-control fx-knob">
+            <div class="knob k4"><span class="knob-line"></span></div>
+            <input class="knob-input" id="distortionAmount" type="range" min="0" max="100" value="10">
+          </div>
+          <div class="fx-name">distortion</div>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="output">
+      <div class="output-controls">
+        <div class="small-title">channel</div>
+
+        <div class="output-row">
+          <div class="output-label">wet</div>
+          <div class="knob-control output-knob">
+            <div class="knob k2"><span class="knob-line"></span></div>
+            <input class="knob-input" id="wetLevel" type="range" min="0" max="100" value="52">
+          </div>
+        </div>
+
+        <div class="output-row">
+          <div class="output-label">dry</div>
+          <div class="knob-control output-knob">
+            <div class="knob k1"><span class="knob-line"></span></div>
+            <input class="knob-input" id="dryLevel" type="range" min="0" max="100" value="82">
+          </div>
+        </div>
+
+        <div class="output-label">stereo out</div>
+      </div>
+
+      <div class="visual" id="visual"></div>
+    </div>
+
+  </section>
+
+
+  <footer class="footer">
+    <div>sample rate: <span id="sampleRate">48000</span></div>
+    <div>depth model / <span id="depthReadout">39.0 m</span></div>
+    <div>composition / generative tide <span id="generationReadout">01</span></div>
+  </footer>
+
+</div>
+
+</body>
+</html>
