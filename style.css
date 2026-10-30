@@ -314,6 +314,19 @@ input {
   padding: 28px 32px;
 }
 
+.fx-groups {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin: -8px 0 18px;
+  font-size: 7px;
+  color: #7c817f;
+}
+
+.fx-groups span:last-child {
+  padding-left: 8px;
+}
+
 .fx-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

@@ -254,7 +254,7 @@ async function initInstrument() {
   const ctx = state.ctx
   const n = state.nodes
 
-  // Three source channels: Surface / Deep / Percussion
+  // SOURCE CHANNELS
   n.surfaceGain = ctx.createGain()
   n.deepGain = ctx.createGain()
   n.drumGain = ctx.createGain()
@@ -267,89 +267,79 @@ async function initInstrument() {
   n.deepGain.connect(n.deepPan)
   n.drumGain.connect(n.drumPan)
 
-  // Dry path
-  n.dryBus = ctx.createGain()
-  n.surfacePan.connect(n.dryBus)
-  n.deepPan.connect(n.dryBus)
-  n.drumPan.connect(n.dryBus)
+  // ------------------------------------------------------------
+  // SURFACE CHAIN / VOICE 01
+  // Surface Synth → Chorus → Delay → L
+  // ------------------------------------------------------------
+  n.surfaceChorusDirect = ctx.createGain()
+  n.surfaceChorusDelay = ctx.createDelay(0.06)
+  n.surfaceChorusDelay.delayTime.value = 0.018
+  n.surfaceChorusWet = ctx.createGain()
+  n.surfaceChorusOut = ctx.createGain()
 
-  // Send path to serial FX chain
-  n.fxIn = ctx.createGain()
-  n.surfaceSend = ctx.createGain()
-  n.deepSend = ctx.createGain()
-  n.drumSend = ctx.createGain()
+  n.surfacePan.connect(n.surfaceChorusDirect)
+  n.surfacePan.connect(n.surfaceChorusDelay)
+  n.surfaceChorusDelay.connect(n.surfaceChorusWet)
+  n.surfaceChorusDirect.connect(n.surfaceChorusOut)
+  n.surfaceChorusWet.connect(n.surfaceChorusOut)
 
-  n.surfacePan.connect(n.surfaceSend)
-  n.deepPan.connect(n.deepSend)
-  n.drumPan.connect(n.drumSend)
-  n.surfaceSend.connect(n.fxIn)
-  n.deepSend.connect(n.fxIn)
-  n.drumSend.connect(n.fxIn)
+  n.surfaceChorusLfo = ctx.createOscillator()
+  n.surfaceChorusLfoGain = ctx.createGain()
+  n.surfaceChorusLfo.frequency.value = 0.28
+  n.surfaceChorusLfoGain.gain.value = 0.004
+  n.surfaceChorusLfo.connect(n.surfaceChorusLfoGain)
+  n.surfaceChorusLfoGain.connect(n.surfaceChorusDelay.delayTime)
+  n.surfaceChorusLfo.start()
 
-  // FX01: chorus = direct signal + modulated short delay
-  n.chorusDirect = ctx.createGain()
-  n.chorusDelay = ctx.createDelay(0.06)
-  n.chorusDelay.delayTime.value = 0.018
-  n.chorusWet = ctx.createGain()
-  n.chorusOut = ctx.createGain()
+  n.surfaceDelay = ctx.createDelay(1.2)
+  n.surfaceDelayFeedback = ctx.createGain()
+  n.surfaceDelayDirect = ctx.createGain()
+  n.surfaceDelayWet = ctx.createGain()
+  n.surfaceOut = ctx.createGain()
 
-  n.fxIn.connect(n.chorusDirect)
-  n.fxIn.connect(n.chorusDelay)
-  n.chorusDelay.connect(n.chorusWet)
-  n.chorusDirect.connect(n.chorusOut)
-  n.chorusWet.connect(n.chorusOut)
+  n.surfaceChorusOut.connect(n.surfaceDelayDirect)
+  n.surfaceChorusOut.connect(n.surfaceDelay)
+  n.surfaceDelay.connect(n.surfaceDelayFeedback)
+  n.surfaceDelayFeedback.connect(n.surfaceDelay)
+  n.surfaceDelay.connect(n.surfaceDelayWet)
+  n.surfaceDelayDirect.connect(n.surfaceOut)
+  n.surfaceDelayWet.connect(n.surfaceOut)
 
-  n.chorusLfo = ctx.createOscillator()
-  n.chorusLfoGain = ctx.createGain()
-  n.chorusLfo.frequency.value = 0.28
-  n.chorusLfoGain.gain.value = 0.004
-  n.chorusLfo.connect(n.chorusLfoGain)
-  n.chorusLfoGain.connect(n.chorusDelay.delayTime)
-  n.chorusLfo.start()
+  // ------------------------------------------------------------
+  // DEEP CHAIN / VOICE 02
+  // Deep Synth → Distortion → Reverb → R
+  // ------------------------------------------------------------
+  n.deepDistortion = ctx.createWaveShaper()
+  n.deepDistortion.oversample = '2x'
+  n.deepPan.connect(n.deepDistortion)
 
-  // FX02: feedback delay
-  n.delay = ctx.createDelay(1.2)
-  n.delayFeedback = ctx.createGain()
-  n.delayDirect = ctx.createGain()
-  n.delayWet = ctx.createGain()
-  n.delayOut = ctx.createGain()
+  n.deepReverb = ctx.createConvolver()
+  n.deepReverb.buffer = makeImpulse(ctx)
+  n.deepReverbDirect = ctx.createGain()
+  n.deepReverbWet = ctx.createGain()
+  n.deepOut = ctx.createGain()
 
-  n.chorusOut.connect(n.delayDirect)
-  n.chorusOut.connect(n.delay)
-  n.delay.connect(n.delayFeedback)
-  n.delayFeedback.connect(n.delay)
-  n.delay.connect(n.delayWet)
-  n.delayDirect.connect(n.delayOut)
-  n.delayWet.connect(n.delayOut)
+  n.deepDistortion.connect(n.deepReverbDirect)
+  n.deepDistortion.connect(n.deepReverb)
+  n.deepReverb.connect(n.deepReverbWet)
+  n.deepReverbDirect.connect(n.deepOut)
+  n.deepReverbWet.connect(n.deepOut)
 
-  // FX03: distortion
-  n.distortion = ctx.createWaveShaper()
-  n.distortion.oversample = '2x'
-  n.delayOut.connect(n.distortion)
-
-  // FX04: reverb with dry/wet balance inside effect
-  n.reverb = ctx.createConvolver()
-  n.reverb.buffer = makeImpulse(ctx)
-  n.reverbDirect = ctx.createGain()
-  n.reverbWet = ctx.createGain()
-  n.reverbOut = ctx.createGain()
-
-  n.distortion.connect(n.reverbDirect)
-  n.distortion.connect(n.reverb)
-  n.reverb.connect(n.reverbWet)
-  n.reverbDirect.connect(n.reverbOut)
-  n.reverbWet.connect(n.reverbOut)
-
-  // Output buses
-  n.wetBus = ctx.createGain()
+  // ------------------------------------------------------------
+  // MIX / OUTPUT
+  // Percussion stays centered and joins both processed voices.
+  // ------------------------------------------------------------
+  n.mixBus = ctx.createGain()
   n.master = ctx.createGain()
   n.analyser = ctx.createAnalyser()
   n.analyser.fftSize = 512
   state.analyserData = new Uint8Array(n.analyser.frequencyBinCount)
 
-  n.reverbOut.connect(n.wetBus)
-  n.dryBus.connect(n.master)
-  n.wetBus.connect(n.master)
+  n.surfaceOut.connect(n.mixBus)
+  n.deepOut.connect(n.mixBus)
+  n.drumPan.connect(n.mixBus)
+
+  n.mixBus.connect(n.master)
   n.master.connect(n.analyser)
   n.analyser.connect(ctx.destination)
 
@@ -362,7 +352,6 @@ async function initInstrument() {
   syncAllControls()
   animateVisual()
 }
-
 function syncAllControls() {
   updateDepthReadout()
   if (!state.initialized) return
@@ -371,9 +360,9 @@ function syncAllControls() {
   const now = state.ctx.currentTime
   const smooth = 0.025
 
-  // Volume and stereo placement
-  n.surfaceGain.gain.setTargetAtTime(sliderValue('surfaceVolume') / 100 * 0.72, now, smooth)
-  n.deepGain.gain.setTargetAtTime(sliderValue('deepVolume') / 100 * 0.56, now, smooth)
+  // Voice levels and stereo placement
+  n.surfaceGain.gain.setTargetAtTime(sliderValue('surfaceVolume') / 100 * 0.82, now, smooth)
+  n.deepGain.gain.setTargetAtTime(sliderValue('deepVolume') / 100 * 0.68, now, smooth)
   n.drumGain.gain.setTargetAtTime(0.86, now, smooth)
 
   n.surfacePan.pan.setTargetAtTime(sliderValue('surfacePan') / 100, now, smooth)
@@ -385,40 +374,36 @@ function syncAllControls() {
   surface.transpose = sliderValue('surfaceFrequency')
   deep.transpose = sliderValue('deepFrequency')
 
-  // Independent sends into the effect chain
-  n.surfaceSend.gain.setTargetAtTime(0.52, now, smooth)
-  n.deepSend.gain.setTargetAtTime(0.66, now, smooth)
-  n.drumSend.gain.setTargetAtTime(0.28, now, smooth)
-
-  // FX01 chorus
+  // Surface FX01 — Chorus
   const chorus = sliderValue('chorusAmount') / 100
-  n.chorusDirect.gain.setTargetAtTime(1, now, smooth)
-  n.chorusWet.gain.setTargetAtTime(chorus * 0.8, now, smooth)
-  n.chorusLfoGain.gain.setTargetAtTime(0.0004 + chorus * 0.008, now, smooth)
-  n.chorusLfo.frequency.setTargetAtTime(0.12 + chorus * 0.7, now, smooth)
+  n.surfaceChorusDirect.gain.setTargetAtTime(1, now, smooth)
+  n.surfaceChorusWet.gain.setTargetAtTime(chorus * 0.8, now, smooth)
+  n.surfaceChorusLfoGain.gain.setTargetAtTime(0.0004 + chorus * 0.008, now, smooth)
+  n.surfaceChorusLfo.frequency.setTargetAtTime(0.12 + chorus * 0.7, now, smooth)
 
-  // FX02 delay
+  // Surface FX02 — Delay
   const delay = sliderValue('delayAmount') / 100
-  n.delayDirect.gain.setTargetAtTime(1, now, smooth)
-  n.delayWet.gain.setTargetAtTime(delay * 0.72, now, smooth)
-  n.delayFeedback.gain.setTargetAtTime(0.06 + delay * 0.48, now, smooth)
-  n.delay.delayTime.setTargetAtTime(0.18 + delay * 0.28, now, smooth)
+  n.surfaceDelayDirect.gain.setTargetAtTime(1, now, smooth)
+  n.surfaceDelayWet.gain.setTargetAtTime(delay * 0.72, now, smooth)
+  n.surfaceDelayFeedback.gain.setTargetAtTime(0.06 + delay * 0.48, now, smooth)
+  n.surfaceDelay.delayTime.setTargetAtTime(0.18 + delay * 0.28, now, smooth)
 
-  // FX03 distortion
+  // Deep FX03 — Distortion
   const distortion = sliderValue('distortionAmount') / 100
-  n.distortion.curve = makeDistortionCurve(distortion * 0.85)
+  n.deepDistortion.curve = makeDistortionCurve(distortion * 0.85)
 
-  // FX04 reverb
+  // Deep FX04 — Reverb
   const reverb = sliderValue('reverbAmount') / 100
-  n.reverbDirect.gain.setTargetAtTime(1 - reverb * 0.45, now, smooth)
-  n.reverbWet.gain.setTargetAtTime(reverb * 0.8, now, smooth)
+  n.deepReverbDirect.gain.setTargetAtTime(1 - reverb * 0.45, now, smooth)
+  n.deepReverbWet.gain.setTargetAtTime(reverb * 0.8, now, smooth)
 
-  // Final wet / dry balance
-  n.wetBus.gain.setTargetAtTime(sliderValue('wetLevel') / 100 * 0.78, now, smooth)
-  n.dryBus.gain.setTargetAtTime(sliderValue('dryLevel') / 100 * 0.9, now, smooth)
-  n.master.gain.setTargetAtTime(0.78, now, smooth)
+  // Final master output
+  n.master.gain.setTargetAtTime(
+    Math.max(0.001, sliderValue('masterVolume') / 100),
+    now,
+    smooth
+  )
 }
-
 function playSynthNote(voiceName, note, when, stepLength, velocity) {
   const ctx = state.ctx
   const voice = voiceName === 'surface' ? surface : deep

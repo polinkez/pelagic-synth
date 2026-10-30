@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>pelagic / underwater synth</title>
 <link rel="stylesheet" href="style.css">
-<script defer src="script.js"></script>
+
 </head>
 <body>
 
@@ -188,6 +188,11 @@
     <div class="effects">
       <div class="small-title">effects</div>
 
+      <div class="fx-groups">
+        <span>surface / FX01—02</span>
+        <span>deep / FX03—04</span>
+      </div>
+
       <div class="fx-grid">
         <div class="fx">
           <div class="knob-control fx-knob">
@@ -207,18 +212,18 @@
 
         <div class="fx">
           <div class="knob-control fx-knob">
-            <div class="knob k2"><span class="knob-line"></span></div>
-            <input class="knob-input" id="reverbAmount" type="range" min="0" max="100" value="56">
-          </div>
-          <div class="fx-name">reverb</div>
-        </div>
-
-        <div class="fx">
-          <div class="knob-control fx-knob">
             <div class="knob k4"><span class="knob-line"></span></div>
             <input class="knob-input" id="distortionAmount" type="range" min="0" max="100" value="10">
           </div>
           <div class="fx-name">distortion</div>
+        </div>
+
+        <div class="fx">
+          <div class="knob-control fx-knob">
+            <div class="knob k2"><span class="knob-line"></span></div>
+            <input class="knob-input" id="reverbAmount" type="range" min="0" max="100" value="56">
+          </div>
+          <div class="fx-name">reverb</div>
         </div>
       </div>
     </div>
@@ -229,18 +234,10 @@
         <div class="small-title">channel</div>
 
         <div class="output-row">
-          <div class="output-label">wet</div>
+          <div class="output-label">volume</div>
           <div class="knob-control output-knob">
             <div class="knob k2"><span class="knob-line"></span></div>
-            <input class="knob-input" id="wetLevel" type="range" min="0" max="100" value="52">
-          </div>
-        </div>
-
-        <div class="output-row">
-          <div class="output-label">dry</div>
-          <div class="knob-control output-knob">
-            <div class="knob k1"><span class="knob-line"></span></div>
-            <input class="knob-input" id="dryLevel" type="range" min="0" max="100" value="82">
+            <input class="knob-input" id="masterVolume" type="range" min="0" max="100" value="78">
           </div>
         </div>
 
@@ -261,5 +258,6 @@
 
 </div>
 
+<script defer src="script.js"></script>
 </body>
 </html>
